@@ -144,50 +144,50 @@ function SocialIcon({ def }: { def: SocialDef }) {
   );
 }
 
-// // ─── Sitemap data ─────────────────────────────────────────────────────────────
-// const SITEMAP = [
-//   {
-//     title: "Main Pages",
-//     links: [
-//       { label: "Home", href: "/" },
-//       { label: "About Us", href: "/about" },
-//       { label: "Services", href: "/services" },
-//       { label: "Scholarships", href: "/scholarships" },
-//       { label: "Universities", href: "/universities" },
-//       { label: "Blogs", href: "/blogs" },
-//       { label: "Contact Us", href: "/contact" },
-//     ],
-//   },
-//   {
-//     title: "Study Abroad",
-//     links: [
-//       { label: "All Countries", href: "/countries" },
-//       { label: "USA", href: "/countries/usa" },
-//       { label: "UK", href: "/countries/uk" },
-//       { label: "Canada", href: "/countries/canada" },
-//       { label: "Australia", href: "/countries/australia" },
-//       { label: "Germany", href: "/countries/germany" },
-//       { label: "Ireland", href: "/countries/ireland" },
-//     ],
-//   },
-//   {
-//     title: "Visa & Resources",
-//     links: [
-//       { label: "Visa Assistance", href: "/visa" },
-//       { label: "Scholarships", href: "/scholarships" },
-//       { label: "Student Resources", href: "/blogs" },
-//       { label: "FAQ", href: "/faq" },
-//     ],
-//   },
-//   {
-//     title: "Support",
-//     links: [
-//       { label: "FAQ", href: "/faq" },
-//       { label: "Privacy Policy", href: "/privacy" },
-//       { label: "Terms & Conditions", href: "/terms" },
-//     ],
-//   },
-// ];
+// ─── Sitemap data ─────────────────────────────────────────────────────────────
+const SITEMAP = [
+  {
+    title: "Main Pages",
+    links: [
+      { label: "Home", href: "/" },
+      { label: "About Us", href: "/about" },
+      { label: "Services", href: "/services" },
+      { label: "Scholarships", href: "/scholarships" },
+      { label: "Universities", href: "/universities" },
+      { label: "Blogs", href: "/blogs" },
+      { label: "Contact Us", href: "/contact" },
+    ],
+  },
+  {
+    title: "Study Abroad",
+    links: [
+      { label: "All Countries", href: "/countries" },
+      { label: "USA", href: "/countries/usa" },
+      { label: "UK", href: "/countries/uk" },
+      { label: "Canada", href: "/countries/canada" },
+      { label: "Australia", href: "/countries/australia" },
+      { label: "Germany", href: "/countries/germany" },
+      { label: "Ireland", href: "/countries/ireland" },
+    ],
+  },
+  {
+    title: "Visa & Resources",
+    links: [
+      { label: "Visa Assistance", href: "/visa" },
+      { label: "Scholarships", href: "/scholarships" },
+      { label: "Student Resources", href: "/blogs" },
+      { label: "FAQ", href: "/faq" },
+    ],
+  },
+  {
+    title: "Support",
+    links: [
+      { label: "FAQ", href: "/faq" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms & Conditions", href: "/terms" },
+    ],
+  },
+];
 
 // ─── Footer column component ──────────────────────────────────────────────────
 function FooterColumn({
