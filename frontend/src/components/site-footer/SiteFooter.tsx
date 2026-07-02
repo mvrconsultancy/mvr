@@ -12,7 +12,7 @@ import {
   FOOTER_STUDY_ABROAD,
   FOOTER_SUPPORT,
 } from "@/constants/navigation";
-import { FOOTER_STUDENT_TOOLS, SITEMAP_SECTIONS } from "@/constants/sitemap-sections";
+import { FOOTER_STUDENT_TOOLS } from "@/constants/sitemap-sections";
 import OfficeAddresses from "@/components/contact/OfficeAddresses";
 import ContactEmails from "@/components/contact/ContactEmails";
 
@@ -180,8 +180,8 @@ export default function SiteFooter() {
   return (
     <footer className="bg-[#0f1c3d]">
       {/* Main footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 lg:items-start">
 
           {/* Brand column */}
           <div className="lg:col-span-5">
@@ -248,41 +248,11 @@ export default function SiteFooter() {
           </div>
 
           {/* Link columns — 4 equal columns filling the right side */}
-          <div className="lg:col-span-7 grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-7 grid w-full grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8">
             <FooterColumn title="Quick Links" links={FOOTER_QUICK_LINKS} />
             <FooterColumn title="Study Abroad" links={FOOTER_STUDY_ABROAD} />
             <FooterColumn title="Student Tools" links={[...FOOTER_STUDENT_TOOLS]} />
             <FooterColumn title="Support" links={FOOTER_SUPPORT} />
-          </div>
-        </div>
-      </div>
-
-      {/* Sitemap strip — full-width compact link directory */}
-      <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-          <h3 className="text-white/40 text-xs font-bold uppercase tracking-[0.2em] mb-6">
-            Site Map
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-            {SITEMAP_SECTIONS.map((section) => (
-              <div key={section.title}>
-                <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest mb-3">
-                  {section.title}
-                </p>
-                <ul className="space-y-1.5">
-                  {section.links.map((link) => (
-                    <li key={link.href}>
-                      <Link
-                        href={link.href}
-                        className="text-white/25 hover:text-[#c9a84c] text-xs transition-colors duration-150"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
           </div>
         </div>
       </div>
