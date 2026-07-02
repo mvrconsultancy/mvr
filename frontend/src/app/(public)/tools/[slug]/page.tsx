@@ -30,12 +30,6 @@ const TOOL_META: Record<string, { title: string; description: string; badge: str
       "Compare up to 3 universities side-by-side across rankings, fees, intakes, scholarships, and more.",
     badge: "University Research",
   },
-  sop: {
-    title: "SOP Samples",
-    description:
-      "Browse real Statement of Purpose samples for MBA, Engineering, IT, Medical, Business, and Data Science programs.",
-    badge: "Application Help",
-  },
   visa: {
     title: "Visa Checklist",
     description:

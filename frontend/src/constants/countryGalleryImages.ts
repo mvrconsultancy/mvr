@@ -26,7 +26,6 @@ export const COUNTRY_GALLERY_IMAGES = {
     unsplash("photo-1519501025264-65ba15a82390"),
     unsplash("photo-1516550893923-42d28e5677af"),
     unsplash("photo-1491557345352-5929e343eb89"),
-    study.books,
     study.campus,
   ],
   canada: [

@@ -7,5 +7,4 @@ pub mod country_service;
 pub mod email_service;
 pub mod lead_service;
 pub mod newsletter_service;
-pub mod sop_service;
 pub mod university_service;

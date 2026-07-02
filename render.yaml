@@ -79,10 +79,6 @@ services:
           name: mvr-redis
           property: connectionString
 
-      # ── AI / Gemini (SOP Reviewer) ────────────────────────────────────────
-      - key: GEMINI_API_KEY
-        sync: false
-
       # ── Logging & proxy ───────────────────────────────────────────────────
       - key: RUST_LOG
         value: info

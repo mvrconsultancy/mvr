@@ -14,7 +14,6 @@ const GpaCalculator     = dynamic(() => import("@/components/tools/GpaCalculator
 const CgpaConverter     = dynamic(() => import("@/components/tools/CgpaConverter"),     { ssr: false, loading: Loading });
 const CostCalculator    = dynamic(() => import("@/components/tools/CostCalculator"),    { ssr: false, loading: Loading });
 const UniversityCompare = dynamic(() => import("@/components/tools/UniversityCompare"), { ssr: false, loading: Loading });
-const SopSamples        = dynamic(() => import("@/components/tools/SopSamples"),        { ssr: false, loading: Loading });
 const VisaChecklist     = dynamic(() => import("@/components/tools/VisaChecklist"),     { ssr: false, loading: Loading });
 const CurrencyConverter = dynamic(() => import("@/components/tools/CurrencyConverter"), { ssr: false, loading: Loading });
 
@@ -23,7 +22,6 @@ const MAP: Record<string, React.ComponentType> = {
   cgpa:     CgpaConverter,
   cost:     CostCalculator,
   compare:  UniversityCompare,
-  sop:      SopSamples,
   visa:     VisaChecklist,
   currency: CurrencyConverter,
 };

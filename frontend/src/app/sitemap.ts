@@ -102,14 +102,12 @@ const STATIC_ROUTES: StaticRoute[] = [
   { path: "/universities",  priority: 0.7, changeFrequency: "weekly"  },
   { path: "/visa",          priority: 0.7, changeFrequency: "monthly" },
   { path: "/faq",           priority: 0.7, changeFrequency: "monthly" },
-  { path: "/sop-reviewer",  priority: 0.7, changeFrequency: "monthly" },
 
   // ── Student resource tools (0.65) ───────────────────────────────────────
   { path: "/tools/gpa",      priority: 0.65, changeFrequency: "yearly" },
   { path: "/tools/cgpa",     priority: 0.65, changeFrequency: "yearly" },
   { path: "/tools/cost",     priority: 0.65, changeFrequency: "monthly" },
   { path: "/tools/compare",  priority: 0.65, changeFrequency: "monthly" },
-  { path: "/tools/sop",      priority: 0.65, changeFrequency: "monthly" },
   { path: "/tools/visa",     priority: 0.65, changeFrequency: "monthly" },
   { path: "/tools/currency", priority: 0.65, changeFrequency: "daily"  },
 

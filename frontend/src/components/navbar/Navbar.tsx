@@ -37,7 +37,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Universities", href: "/universities" },
   { label: "Visa", href: "/visa" },
   { label: "Blogs", href: "/blogs" },
-  { label: "SOP Reviewer", href: "/sop-reviewer" },
   { label: "Contact", href: CONTACT_FORM_HREF },
 ];
 

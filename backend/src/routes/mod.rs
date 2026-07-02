@@ -9,7 +9,7 @@ use crate::{
     config::env::Config,
     middleware::{
         auth_middleware, cors_middleware,
-        rate_limit_middleware::{self, contact_limiter, leads_limiter, login_limiter, sop_limiter},
+        rate_limit_middleware::{self, contact_limiter, leads_limiter, login_limiter},
     },
     utils::{response::health_handler, token_blocklist::TokenBlocklist},
 };
@@ -22,7 +22,6 @@ pub mod contact;
 pub mod countries;
 pub mod leads;
 pub mod scholarships;
-pub mod sop;
 pub mod testimonials;
 pub mod universities;
 pub mod users;
@@ -74,11 +73,9 @@ pub async fn create_router(db: PgPool, config: Config) -> Router {
     let login_lim = login_limiter(trust_proxy);
     let contact_lim = contact_limiter(trust_proxy);
     let leads_lim = leads_limiter(trust_proxy);
-    let sop_lim = sop_limiter(trust_proxy);
     rate_limit_middleware::spawn_eviction_task(login_lim.clone());
     rate_limit_middleware::spawn_eviction_task(contact_lim.clone());
     rate_limit_middleware::spawn_eviction_task(leads_lim.clone());
-    rate_limit_middleware::spawn_eviction_task(sop_lim.clone());
 
     Router::new()
         // Health check (public)
@@ -95,12 +92,7 @@ pub async fn create_router(db: PgPool, config: Config) -> Router {
             ),
         )
         // Public API routes (no auth)
-        .merge(public_routes(
-            login_lim.clone(),
-            contact_lim,
-            leads_lim,
-            sop_lim,
-        ))
+        .merge(public_routes(login_lim.clone(), contact_lim, leads_lim))
         .merge(pending_totp_routes(state.clone(), login_lim))
         // Protected routes (JWT required)
         .merge(protected_routes(state.clone()))
@@ -120,7 +112,6 @@ fn public_routes(
     login_lim: rate_limit_middleware::RateLimiterState,
     contact_lim: rate_limit_middleware::RateLimiterState,
     leads_lim: rate_limit_middleware::RateLimiterState,
-    sop_lim: rate_limit_middleware::RateLimiterState,
 ) -> Router<AppState> {
     Router::new()
         .route(
@@ -171,14 +162,6 @@ fn public_routes(
         // Public countries listing and detail
         .route("/api/countries", get(countries::get_all_countries))
         .route("/api/countries/:slug", get(countries::get_country_by_slug))
-        // SOP AI review — rate-limited aggressively (AI calls cost money)
-        .route(
-            "/api/sop/review",
-            post(sop::review_sop).route_layer(middleware::from_fn_with_state(
-                sop_lim,
-                rate_limit_middleware::rate_limit_sop,
-            )),
-        )
 }
 
 /// POST /api/auth/totp/verify — pending cookie + rate limit (no full JWT yet).

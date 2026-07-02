@@ -138,6 +138,16 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/sop-reviewer",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/tools/sop",
+        destination: "/tools/gpa",
+        permanent: true,
+      },
+      {
         source: "/:path*",
         has: [{ type: "host", value: "mvrconsultants.org" }],
         destination: "https://www.mvrconsultants.org/:path*",

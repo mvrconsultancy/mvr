@@ -37,9 +37,6 @@ pub struct Config {
     pub admin_email: String,
     pub admin_email_guntur: String,
 
-    // AI — Gemini
-    pub gemini_api_key: String,
-
     // Redis — optional JTI blocklist backend (C-1 security fix)
     // If set, token revocations survive restarts and support multi-instance deploys.
     // If unset, falls back to in-memory blocklist (acceptable for single-instance dev).
@@ -130,9 +127,6 @@ impl Config {
                 .context("ADMIN_EMAIL must be set (Hyderabad office notification address)")?,
             admin_email_guntur: std::env::var("ADMIN_EMAIL_GUNTUR")
                 .context("ADMIN_EMAIL_GUNTUR must be set (Guntur office notification address)")?,
-
-            // AI — Gemini Flash (cheap, fast, sufficient for SOP review)
-            gemini_api_key: std::env::var("GEMINI_API_KEY").unwrap_or_else(|_| "".to_string()),
 
             // Redis — required in production for persistent admin logout revocation
             redis_url: {

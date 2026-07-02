@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star, Quote, ArrowRight } from "lucide-react";
 import { apiUrl } from "@/lib/api-url";
-import { STATIC_TESTIMONIALS } from "@/data/testimonials";
 
 interface Testimonial {
   id: string;
@@ -19,14 +18,14 @@ interface Testimonial {
 }
 
 export default function TestimonialsPageClient() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(STATIC_TESTIMONIALS);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(apiUrl("/api/testimonials"))
       .then((r) => r.json())
       .then((json) => {
-        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+        if (json?.success && Array.isArray(json.data)) {
           setTestimonials(json.data);
         }
       })

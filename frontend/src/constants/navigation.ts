@@ -29,7 +29,6 @@ export const NAV_LINKS = [
     href: "/visa",
   },
   { label: "Blogs", href: "/blogs" },
-  { label: "SOP Reviewer", href: "/sop-reviewer" },
   { label: "Contact", href: "/contact" },
 ] as const;
 

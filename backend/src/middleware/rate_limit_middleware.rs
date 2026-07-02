@@ -257,22 +257,6 @@ pub async fn rate_limit_newsletter(
     next.run(request).await
 }
 
-/// Rate limiter for POST /api/sop/review
-/// Config: 3 attempts burst, then 1 per 120 seconds.
-/// Rationale: each AI call costs ~$0.0003; 1 per 2 min prevents cost-based abuse.
-pub async fn rate_limit_sop(
-    State(limiter): State<RateLimiterState>,
-    request: Request,
-    next: Next,
-) -> Response {
-    let ip = extract_ip(&request, limiter.trust_proxy_headers());
-    if !limiter.is_allowed(ip) {
-        tracing::warn!(ip = %ip, "Rate limit hit on /api/sop/review");
-        return too_many_requests("/api/sop/review", 120);
-    }
-    next.run(request).await
-}
-
 /// Rate limiter for POST /api/auth/refresh — same limits as login.
 pub async fn rate_limit_refresh(
     State(limiter): State<RateLimiterState>,
@@ -306,11 +290,6 @@ pub fn leads_limiter(trust_proxy: bool) -> RateLimiterState {
 #[allow(dead_code)]
 pub fn newsletter_limiter(trust_proxy: bool) -> RateLimiterState {
     RateLimiterState::new(2, 1.0 / 60.0, trust_proxy)
-}
-
-/// Returns a limiter sized for SOP AI review: 3-burst, 1 req / 120 s per IP.
-pub fn sop_limiter(trust_proxy: bool) -> RateLimiterState {
-    RateLimiterState::new(3, 1.0 / 120.0, trust_proxy)
 }
 
 // ── Periodic eviction task ────────────────────────────────────────────────────

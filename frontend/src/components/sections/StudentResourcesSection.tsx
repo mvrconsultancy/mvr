@@ -58,18 +58,6 @@ const RESOURCES = [
     ),
   },
   {
-    id: "sop",
-    label: "SOP Samples",
-    href: "/tools/sop",
-    icon: (
-      <svg viewBox="0 0 44 44" fill="none" className="w-9 h-9 mx-auto">
-        <rect x="8" y="6" width="28" height="32" rx="3" stroke="#1a2f5e" strokeWidth="1.5"/>
-        <path d="M14 14h16M14 20h16M14 26h10" stroke="#1a2f5e" strokeWidth="1.5" strokeLinecap="round"/>
-        <path d="M28 28l4 4M32 28l4 4" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
     id: "visa",
     label: "Visa Checklist",
     href: "/tools/visa",

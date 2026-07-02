@@ -173,7 +173,6 @@ const SITEMAP = [
       { label: "Visa Assistance", href: "/visa" },
       { label: "Scholarships", href: "/scholarships" },
       { label: "Student Resources", href: "/blogs" },
-      { label: "SOP Reviewer", href: "/sop-reviewer" },
       { label: "FAQ", href: "/faq" },
     ],
   },

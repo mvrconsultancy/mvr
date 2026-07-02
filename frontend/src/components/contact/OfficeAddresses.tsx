@@ -29,11 +29,7 @@ function OfficeBlock({
           {office.city}
         </p>
         <p className="text-white/60 text-sm leading-relaxed">
-          {office.lines.map((line) => (
-            <span key={line} className="block">
-              {line}
-            </span>
-          ))}
+          {office.lines.join(", ")}
         </p>
       </div>
     );
@@ -79,7 +75,7 @@ export default function OfficeAddresses({
         <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
           <MapPin size={13} />
         </span>
-        <div className="space-y-4 min-w-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 min-w-0 flex-1">
           {OFFICES.map((office) => (
             <OfficeBlock
               key={office.id}
