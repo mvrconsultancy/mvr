@@ -57,7 +57,7 @@ export const FOOTER_SUPPORT = [
   { label: "FAQ", href: "/faq" },
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms & Conditions", href: "/terms" },
-  { label: "Sitemap", href: "/sitemap.xml" },
+  { label: "Sitemap", href: "/sitemap" },
 ];
 
 export const OFFICES = [

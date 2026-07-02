@@ -17,6 +17,7 @@ const staticRoutes = [
   "/eligibility",
   "/faq",
   "/testimonials",
+  "/sitemap",
   "/privacy",
   "/terms",
   "/robots.txt",

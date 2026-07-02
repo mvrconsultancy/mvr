@@ -12,6 +12,7 @@ import {
   FOOTER_STUDY_ABROAD,
   FOOTER_SUPPORT,
 } from "@/constants/navigation";
+import { FOOTER_STUDENT_TOOLS, SITEMAP_SECTIONS } from "@/constants/sitemap-sections";
 import OfficeAddresses from "@/components/contact/OfficeAddresses";
 import ContactEmails from "@/components/contact/ContactEmails";
 
@@ -141,51 +142,6 @@ function SocialIcon({ def }: { def: SocialDef }) {
   );
 }
 
-// ─── Sitemap data ─────────────────────────────────────────────────────────────
-const SITEMAP = [
-  {
-    title: "Main Pages",
-    links: [
-      { label: "Home", href: "/" },
-      { label: "About Us", href: "/about" },
-      { label: "Services", href: "/services" },
-      { label: "Scholarships", href: "/scholarships" },
-      { label: "Universities", href: "/universities" },
-      { label: "Blogs", href: "/blogs" },
-      { label: "Contact Us", href: "/contact" },
-    ],
-  },
-  {
-    title: "Study Abroad",
-    links: [
-      { label: "All Countries", href: "/countries" },
-      { label: "USA", href: "/countries/usa" },
-      { label: "UK", href: "/countries/uk" },
-      { label: "Canada", href: "/countries/canada" },
-      { label: "Australia", href: "/countries/australia" },
-      { label: "Germany", href: "/countries/germany" },
-      { label: "Ireland", href: "/countries/ireland" },
-    ],
-  },
-  {
-    title: "Visa & Resources",
-    links: [
-      { label: "Visa Assistance", href: "/visa" },
-      { label: "Scholarships", href: "/scholarships" },
-      { label: "Student Resources", href: "/blogs" },
-      { label: "FAQ", href: "/faq" },
-    ],
-  },
-  {
-    title: "Support",
-    links: [
-      { label: "FAQ", href: "/faq" },
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms & Conditions", href: "/terms" },
-    ],
-  },
-];
-
 // ─── Footer column component ──────────────────────────────────────────────────
 function FooterColumn({
   title,
@@ -225,10 +181,10 @@ export default function SiteFooter() {
     <footer className="bg-[#0f1c3d]">
       {/* Main footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8">
 
           {/* Brand column */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-5">
             {/* Logo — same clipping approach as navbar, inverted white for dark bg */}
             <Link href="/" className="flex items-center shrink-0 mb-5">
               <div
@@ -291,21 +247,24 @@ export default function SiteFooter() {
             </div>
           </div>
 
-          {/* Link columns */}
-          <FooterColumn title="Quick Links" links={FOOTER_QUICK_LINKS} />
-          <FooterColumn title="Study Abroad" links={FOOTER_STUDY_ABROAD} />
-          <FooterColumn title="Support" links={FOOTER_SUPPORT} />
+          {/* Link columns — 4 equal columns filling the right side */}
+          <div className="lg:col-span-7 grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <FooterColumn title="Quick Links" links={FOOTER_QUICK_LINKS} />
+            <FooterColumn title="Study Abroad" links={FOOTER_STUDY_ABROAD} />
+            <FooterColumn title="Student Tools" links={[...FOOTER_STUDENT_TOOLS]} />
+            <FooterColumn title="Support" links={FOOTER_SUPPORT} />
+          </div>
         </div>
       </div>
 
-      {/* ── Sitemap section ──
+      {/* Sitemap strip — full-width compact link directory */}
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <h3 className="text-white/40 text-xs font-bold uppercase tracking-[0.2em] mb-6">
             Site Map
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-            {SITEMAP.map((section) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+            {SITEMAP_SECTIONS.map((section) => (
               <div key={section.title}>
                 <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest mb-3">
                   {section.title}
@@ -326,7 +285,7 @@ export default function SiteFooter() {
             ))}
           </div>
         </div>
-      </div> */}
+      </div>
 
       {/* Bottom bar */}
       <div className="border-t border-white/10">

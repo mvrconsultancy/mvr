@@ -112,6 +112,7 @@ const STATIC_ROUTES: StaticRoute[] = [
   { path: "/tools/currency", priority: 0.65, changeFrequency: "daily"  },
 
   // ── Legal / support (0.5) ───────────────────────────────────────────────
+  { path: "/sitemap",     priority: 0.5, changeFrequency: "monthly" },
   { path: "/privacy",     priority: 0.5, changeFrequency: "yearly"  },
   { path: "/terms",       priority: 0.5, changeFrequency: "yearly"  },
 ];
