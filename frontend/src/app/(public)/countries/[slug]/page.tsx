@@ -36,9 +36,18 @@ async function fetchCountryFromStatic(slug: string): Promise<CountryData | null>
 }
 
 async function getCountryData(slug: string): Promise<CountryData | null> {
-  const fromApi = await fetchCountryFromApi(slug);
-  const country = fromApi ?? (await fetchCountryFromStatic(slug));
+  const [fromApi, fromStatic] = await Promise.all([
+    fetchCountryFromApi(slug),
+    fetchCountryFromStatic(slug),
+  ]);
+  const country = fromApi ?? fromStatic;
   if (!country) return null;
+
+  if (fromStatic?.images?.length) {
+    country.images = fromStatic.images;
+    if (fromStatic.heroImage) country.heroImage = fromStatic.heroImage;
+  }
+
   return normalizeCountryImages(slug, country);
 }
 
