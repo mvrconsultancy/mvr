@@ -26,15 +26,15 @@ export const COUNTRY_GALLERY_IMAGES = {
     unsplash("photo-1519501025264-65ba15a82390"),
     unsplash("photo-1516550893923-42d28e5677af"),
     unsplash("photo-1491557345352-5929e343eb89"),
-    unsplash("photo-1524230651252-26a2fa8a3246"),
-    unsplash("photo-1529651737243-dad20895046f"),
+    study.library,
+    study.lecture,
   ],
   canada: [
     unsplash("photo-1503614472-8c93d56e92ce"),
     unsplash("photo-1558618666-fcd25c85cd64"),
     unsplash("photo-1513622470522-26c3c8a854bc"),
     unsplash("photo-1497435334941-8c899ee9e8e9"),
-    unsplash("photo-1629654297259-ac7a19844221"),
+    study.lecture,
     unsplash("photo-1506905925346-21bda4d32df4"),
   ],
   australia: [
