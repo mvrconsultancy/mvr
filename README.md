@@ -417,5 +417,5 @@ Copyright © 2025 MVR Consultants. All rights reserved.
 ---
 
 <div align="center">
-  <em>Built with ❤️ by Team Glory X</em>
+  <em>Built with ❤️ by Team BinaryScouts</em>
 </div>
