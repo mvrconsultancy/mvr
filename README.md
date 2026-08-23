@@ -448,6 +448,16 @@ Copyright © 2025 MVR Consultants. All rights reserved.
 
 ---
 
+## 👥 Created & built by
+
+**[Uday Kumar Kori](https://github.com/coriuday)** · [@coriuday](https://github.com/coriuday)  
+Full-stack and AI systems builder. Co-founder leading architecture, ML pipelines, and production-grade applications at BinaryScouts.
+
+**[Ashish Kumar](https://github.com/ashuisalluneed)** · [@ashuisalluneed](https://github.com/ashuisalluneed)  
+Generative AI full-stack developer shipping TypeScript, Next.js, Python, and modern ML-integrated products at BinaryScouts.
+
+---
+
 <div align="center">
   <em>Built with ❤️ by Team BinaryScouts</em>
 </div>
