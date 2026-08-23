@@ -5,7 +5,8 @@ Use this document to transfer the full stack to the client's personal accounts *
 **Stack:** GitHub → Vercel (frontend) + Render (backend + Redis) → Supabase (Postgres)  
 **Domain:** `https://www.mvrconsultants.org`  
 **Backend (current):** `https://mvr-umqq.onrender.com`  
-**Frontend (current):** `https://mvr-one.vercel.app`  
+**Frontend (Vercel deployment):** `https://mvr.vercel.app` (client project **`mvr`**, team **MvrConsultancy**)  
+**Vercel dashboard:** `https://vercel.com/mvr-consultancy/mvr/settings/domains`  
 **Supabase project ref:** `vjjykfkbfkfalhqkczsd`
 
 ---
@@ -323,6 +324,8 @@ Use **New Blueprint** → select repo → Render reads `dockerfilePath: ./backen
 
 ### Vercel environment variables
 
+**Account:** MvrConsultancy team → project **`mvr`** (`https://vercel.com/mvr-consultancy/mvr`)
+
 **Root Directory:** `frontend` (required)
 
 Add in Vercel → Project → **Settings** → **Environment Variables** → **Production**:
@@ -330,7 +333,7 @@ Add in Vercel → Project → **Settings** → **Environment Variables** → **P
 | Variable | Required | Value |
 |----------|----------|--------|
 | `BACKEND_URL` | Yes | `https://mvr-umqq.onrender.com` (no trailing slash) |
-| `NEXT_PUBLIC_APP_URL` | Yes | `https://www.mvrconsultants.org` or `https://mvr-one.vercel.app` until DNS is connected |
+| `NEXT_PUBLIC_APP_URL` | Yes | `https://www.mvrconsultants.org` or `https://mvr.vercel.app` until DNS is connected |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | No | Skip — Cloudinary is configured on Render only |
 
 Copy-paste reference: [`frontend/vercel.production.env.example`](frontend/vercel.production.env.example)
@@ -348,57 +351,122 @@ After saving env vars → **Redeploy** (vars apply on next deploy only).
 
 ---
 
-## Phase 5 — Custom domain (Vercel + Hostinger) — ACTION REQUIRED
+## Phase 5 — Custom domain (Hostinger DNS + client Vercel) — ACTION REQUIRED
 
-**Verified issue (2026-08-23):** `www.mvrconsultants.org` and `mvrconsultants.org` are in a **redirect loop**:
+**Client Vercel account (Brave browser):** Team **MvrConsultancy** → project **`mvr`**  
+Dashboard: `https://vercel.com/mvr-consultancy/mvr/settings/domains`
 
-| Step | Request | Response | Source |
-|------|---------|----------|--------|
-| 1 | `https://www.mvrconsultants.org/` | **307** → `https://mvrconsultants.org/` | **Vercel domain config** (www→apex) |
-| 2 | `https://mvrconsultants.org/` | **308** → `https://www.mvrconsultants.org/` | App code (removed in latest deploy) |
+> **Note:** Do not use a personal Vercel CLI login — the client domain lives on the MvrConsultancy team account.
 
-Both redirects were served by **Vercel** at the edge — not Hostinger alone. App-level apex→www redirects in `middleware.ts` and `next.config.ts` have been **removed**; canonical www is handled by Vercel only.
+### Root cause (confirmed from Hostinger + Vercel screenshots, 2026-08-23)
 
-**Until fixed, use:** `https://mvr-one.vercel.app` (fully working).
-
-### Fix in Vercel (do this first)
-
-**Vercel → `mvr-one` → Settings → Domains**
-
-1. Ensure both domains are listed:
-   - `www.mvrconsultants.org`
-   - `mvrconsultants.org`
-2. Set **`www.mvrconsultants.org` as primary** (Production).
-3. Configure **`mvrconsultants.org` (apex) to redirect to www** — use Vercel's built-in "Redirect to www" option.
-4. **Remove/disable** any setting that redirects **www → apex** (this is the 307 causing the loop).
-5. Save and wait 1–5 minutes for propagation.
-
-### Fix in Hostinger DNS
-
-1. **Remove** any Hostinger **URL redirect / forwarding** that sends `www.mvrconsultants.org` → `mvrconsultants.org`
-2. **Hostinger DNS** — set records exactly as Vercel shows:
-   - `www` → **CNAME** → `cname.vercel-dns.com` (or Vercel-provided target)
-   - Apex `@` → **A record** to Vercel IP **OR** let Vercel handle apex (follow Vercel domain wizard)
-3. **Rule:** Only one redirect direction — apex → www via Vercel. Do **not** also redirect www → apex anywhere.
-4. Wait for DNS propagation (up to 24–48h, often minutes).
-
-### Verify after domain fix
-
-```powershell
-curl -sI https://www.mvrconsultants.org/ | findstr /i "HTTP location"
-# Expected: HTTP/1.1 200 OK (no Location header)
-
-curl -sI https://mvrconsultants.org/ | findstr /i "HTTP location"
-# Expected: 308 Location: https://www.mvrconsultants.org/
+```mermaid
+flowchart LR
+  www["www.mvrconsultants.org"] -->|"CNAME www → mvrconsultants.org WRONG"| apex["mvrconsultants.org"]
+  apex -->|"A @ → 2.57.91.91 / 216.198.79.1"| hostinger["Hostinger hosting"]
+  vercel["Vercel project mvr"] -.->|"needs CNAME www → 38a1e8e29e879bb4.vercel-dns-017.com"| www
 ```
 
-- [ ] Vercel: www primary, apex→www only (no www→apex)
-- [ ] `www.mvrconsultants.org` → CNAME → Vercel (`mvr-one` project)
-- [ ] No Hostinger www → apex redirect
-- [ ] Resend SPF/DKIM records still valid
-- [ ] SSL active on Vercel (automatic)
+| Location | Current (wrong) | Required |
+|----------|-----------------|----------|
+| Hostinger `www` | **CNAME → `mvrconsultants.org`** | **CNAME → `38a1e8e29e879bb4.vercel-dns-017.com`** |
+| Hostinger `@` | **A → `2.57.91.91` + `216.198.79.1`** | **A → Vercel IP** (see Vercel apex domain panel) |
+| Vercel dashboard | **`www` — Invalid Configuration** | Valid after DNS fix + Refresh |
 
-**DNS propagation:** can take up to 24–48 hours; often much faster.
+App-level redirects were removed from [`frontend/src/middleware.ts`](frontend/src/middleware.ts) and [`frontend/next.config.ts`](frontend/next.config.ts). DNS must point to Vercel — redirects are configured in Vercel only.
+
+**Fallback URL until DNS is valid:** `https://mvr.vercel.app`
+
+---
+
+### Step 1 — Hostinger DNS (client Hostinger panel)
+
+**Hostinger → Domains → mvrconsultants.org → DNS / Nameservers → DNS records**
+
+#### A. Fix `www` (do this first)
+
+| Action | Type | Name | Value |
+|--------|------|------|-------|
+| **DELETE** | CNAME | `www` | `mvrconsultants.org` |
+| **DELETE** (if present) | A | `www` | `2.57.91.91` |
+| **ADD** | CNAME | `www` | `38a1e8e29e879bb4.vercel-dns-017.com` |
+
+TTL: 300 (or default). Save.
+
+#### B. Fix apex `@`
+
+1. In **Vercel (Brave) → mvr → Domains → `mvrconsultants.org`** — copy the exact A record Vercel shows (commonly `76.76.21.21` or `216.150.1.1`; use whatever the dashboard displays).
+2. In Hostinger:
+
+| Action | Type | Name | Value |
+|--------|------|------|-------|
+| **DELETE** | A | `@` | `2.57.91.91` |
+| **DELETE** | A | `@` | `216.198.79.1` |
+| **ADD** | A | `@` | *(Vercel-provided IP from step 1)* |
+
+#### C. Do NOT delete (email / Resend — keep as-is)
+
+| Type | Name | Purpose |
+|------|------|---------|
+| TXT | `resend._domainkey` | Resend DKIM |
+| CNAME | `hostingermail-a/b/c._domainkey` | Hostinger mail DKIM |
+| CNAME | `autodiscover` | Mail autodiscover |
+| CNAME | `autoconfig` | Mail autoconfig |
+| CNAME | `rsend`, `send` | Resend |
+| MX | `@` → `mx1/mx2.hostinger.com` | Inbound mail |
+| TXT | `@` (SPF) | `v=spf1 include:_spf.mail.hostinger.com ~all` |
+| TXT | `_dmarc` | DMARC |
+| TXT | `_vercel` | Vercel domain verification |
+
+#### D. Hostinger URL forwarding
+
+**Hostinger → Redirects:** remove any rule that redirects `www ↔ apex`. Redirects belong in Vercel only.
+
+---
+
+### Step 2 — Client Vercel (Brave → MvrConsultancy → project `mvr`)
+
+1. **Domains → `www.mvrconsultants.org`** — click **Refresh** until **Valid Configuration**
+2. Set **`www.mvrconsultants.org` as Primary** (Production)
+3. Add **`mvrconsultants.org`** if missing → enable **Redirect to www**
+4. Do **not** enable www → apex redirect
+5. **Settings → Environment Variables → Production:**
+   - `BACKEND_URL` = `https://mvr-umqq.onrender.com`
+   - `NEXT_PUBLIC_APP_URL` = `https://www.mvrconsultants.org`
+6. Redeploy after env changes
+
+---
+
+### Step 3 — Verify (5–30 min after DNS save)
+
+```powershell
+nslookup www.mvrconsultants.org
+# Expected: CNAME to *.vercel-dns-*.com (NOT mvrconsultants.org)
+
+curl -sI https://www.mvrconsultants.org/ | findstr /i "HTTP location server"
+# Expected: HTTP/1.1 200 OK, Server: Vercel, no Location
+
+curl -sI https://mvrconsultants.org/ | findstr /i "HTTP location"
+# Expected: 307/308 Location: https://www.mvrconsultants.org/
+```
+
+Or run the automated check:
+
+```bash
+cd frontend
+node scripts/verify-domain-dns.mjs
+```
+
+**Checklist:**
+
+- [ ] Hostinger: `www` CNAME → `38a1e8e29e879bb4.vercel-dns-017.com` (not apex)
+- [ ] Hostinger: `@` A → Vercel IP (not Hostinger `2.57.91.91` / `216.198.79.1`)
+- [ ] Vercel: both domains **Valid Configuration**
+- [ ] Vercel: www primary, apex redirects to www
+- [ ] Email DNS records unchanged
+- [ ] `verify-domain-dns.mjs` exits 0
+
+**DNS propagation:** usually minutes; can take up to 24–48 hours.
 
 ---
 
@@ -418,20 +486,22 @@ Without this secret, the "Deploy Backend → Render" job fails after CI passes.
 
 ## Phase 6 — End-to-end verification
 
-**Last automated check: 2026-08-23 (after redirect + CI fixes, commit `6dd178a`)**
+**Last automated check: 2026-08-23 (DNS fix docs + verify script; Hostinger CNAME still pending)**
 
 | Target | Expected | Result |
 |--------|----------|--------|
-| `https://www.mvrconsultants.org/` | 200 | **Pass** — 200 OK |
-| `https://mvrconsultants.org/` | 308 → www | **Pass** — 307 → `www` (Vercel apex redirect) |
-| `https://www.mvrconsultants.org/health` | 200 JSON | **Pass** — 200 `application/json` |
-| `https://www.mvrconsultants.org/api/countries/uk` | 200 JSON | **Pass** — 200 `application/json` |
-| `https://www.mvrconsultants.org/countries/uk` | 200 | **Pass** — 200 OK |
-| `https://www.mvrconsultants.org/admin/login` | 200 | **Pass** — 200 OK |
-| `https://mvr-one.vercel.app/` | 200 | **Pass** |
-| `https://mvr-one.vercel.app/health` | 200 | **Pass** (Render proxy) |
+| `https://www.mvrconsultants.org/` | 200 | **Pass** — 200 OK (Vercel; DNS still alias to apex until Hostinger fix) |
+| `https://mvrconsultants.org/` | 307/308 → www | **Pass** — 307 → `www` |
+| `https://www.mvrconsultants.org/health` | 200 JSON | **Pass** |
+| `https://www.mvrconsultants.org/api/countries/uk` | 200 JSON | **Pass** |
+| `https://www.mvrconsultants.org/countries/uk` | 200 | **Pass** |
+| `https://www.mvrconsultants.org/admin/login` | 200 | **Pass** |
+| `https://mvr.vercel.app/` | 200 | **Pass** (client Vercel project) |
+| `https://mvr.vercel.app/health` | 200 | **Pass** (Render proxy) |
 | `https://mvr-umqq.onrender.com/health` | 200 | **Pass** |
 | GitHub Actions CI (run #89) | Frontend + Backend green | **Pass** — [run #89](https://github.com/mvrconsultancy/mvr/actions/runs/32635111641) |
+| Hostinger `www` CNAME → Vercel | `38a1e8e29e879bb4.vercel-dns-017.com` | **Pending** — still `www → mvrconsultants.org` |
+| Vercel domain status | Valid Configuration | **Pending** — refresh after Hostinger DNS fix |
 
 Run through with the client watching on `www.mvrconsultants.org` (custom domain working as of 2026-08-23).
 
