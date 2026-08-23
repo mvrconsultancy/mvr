@@ -348,40 +348,71 @@ After saving env vars → **Redeploy** (vars apply on next deploy only).
 
 ---
 
-## Phase 5 — DNS (Hostinger) — ACTION REQUIRED
+## Phase 5 — Custom domain (Vercel + Hostinger) — ACTION REQUIRED
 
 **Verified issue (2026-08-23):** `www.mvrconsultants.org` and `mvrconsultants.org` are in a **redirect loop**:
 
-- Hostinger sends `www` → apex (307)
-- Vercel/app sends apex → `www` (308 in [`frontend/next.config.ts`](frontend/next.config.ts))
+| Step | Request | Response | Source |
+|------|---------|----------|--------|
+| 1 | `https://www.mvrconsultants.org/` | **307** → `https://mvrconsultants.org/` | **Vercel domain config** (www→apex) |
+| 2 | `https://mvrconsultants.org/` | **308** → `https://www.mvrconsultants.org/` | App code (removed in latest deploy) |
+
+Both redirects were served by **Vercel** at the edge — not Hostinger alone. App-level apex→www redirects in `middleware.ts` and `next.config.ts` have been **removed**; canonical www is handled by Vercel only.
 
 **Until fixed, use:** `https://mvr-one.vercel.app` (fully working).
 
-### Fix in Hostinger (do this now)
+### Fix in Vercel (do this first)
 
-1. **Remove** any Hostinger **URL redirect / forwarding** that sends `www.mvrconsultants.org` → `mvrconsultants.org`
-2. **Vercel** → `mvr-one` → **Settings → Domains** → add both:
+**Vercel → `mvr-one` → Settings → Domains**
+
+1. Ensure both domains are listed:
    - `www.mvrconsultants.org`
    - `mvrconsultants.org`
-3. **Hostinger DNS** — set records exactly as Vercel shows:
+2. Set **`www.mvrconsultants.org` as primary** (Production).
+3. Configure **`mvrconsultants.org` (apex) to redirect to www** — use Vercel's built-in "Redirect to www" option.
+4. **Remove/disable** any setting that redirects **www → apex** (this is the 307 causing the loop).
+5. Save and wait 1–5 minutes for propagation.
+
+### Fix in Hostinger DNS
+
+1. **Remove** any Hostinger **URL redirect / forwarding** that sends `www.mvrconsultants.org` → `mvrconsultants.org`
+2. **Hostinger DNS** — set records exactly as Vercel shows:
    - `www` → **CNAME** → `cname.vercel-dns.com` (or Vercel-provided target)
    - Apex `@` → **A record** to Vercel IP **OR** let Vercel handle apex (follow Vercel domain wizard)
-4. **Rule:** Only one redirect direction — app redirects apex → www. Do **not** also redirect www → apex in Hostinger.
-5. Wait for DNS propagation (up to 24–48h, often minutes).
+3. **Rule:** Only one redirect direction — apex → www via Vercel. Do **not** also redirect www → apex anywhere.
+4. Wait for DNS propagation (up to 24–48h, often minutes).
 
-### Verify after DNS fix
+### Verify after domain fix
 
-```bash
-curl -sL -o /dev/null -w "%{http_code} %{url_effective}\n" https://www.mvrconsultants.org/
-# Expected: 200 https://www.mvrconsultants.org/
+```powershell
+curl -sI https://www.mvrconsultants.org/ | findstr /i "HTTP location"
+# Expected: HTTP/1.1 200 OK (no Location header)
+
+curl -sI https://mvrconsultants.org/ | findstr /i "HTTP location"
+# Expected: 308 Location: https://www.mvrconsultants.org/
 ```
 
+- [ ] Vercel: www primary, apex→www only (no www→apex)
 - [ ] `www.mvrconsultants.org` → CNAME → Vercel (`mvr-one` project)
 - [ ] No Hostinger www → apex redirect
 - [ ] Resend SPF/DKIM records still valid
 - [ ] SSL active on Vercel (automatic)
 
 **DNS propagation:** can take up to 24–48 hours; often much faster.
+
+---
+
+## Phase 5b — GitHub CI deploy hook
+
+On [mvrconsultancy/mvr](https://github.com/mvrconsultancy/mvr):
+
+**Settings → Environments → production → Environment secrets**
+
+| Secret | Value |
+|--------|-------|
+| `RENDER_DEPLOY_HOOK_URL` | From **Render** → `mvr-umqq` service → Settings → **Deploy Hook** |
+
+Without this secret, the "Deploy Backend → Render" job fails after CI passes.
 
 ---
 

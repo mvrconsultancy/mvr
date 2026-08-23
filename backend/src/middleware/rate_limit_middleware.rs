@@ -140,27 +140,30 @@ fn extract_ip(request: &Request, trust_proxy_headers: bool) -> IpAddr {
         .map(|ci| ci.0.ip());
 
     // Honour proxy headers only from trusted private/loopback peers (local nginx)
-    if let Some(peer) = peer_ip {
-        if is_trusted_proxy(&peer) {
-            if let Some(real_ip) = request
-                .headers()
-                .get("X-Real-IP")
-                .and_then(|v| v.to_str().ok())
-                .and_then(|s| s.trim().parse::<IpAddr>().ok())
-            {
-                return real_ip;
-            }
+    if let Some(peer) = peer_ip
+        && is_trusted_proxy(&peer)
+        && let Some(real_ip) = request
+            .headers()
+            .get("X-Real-IP")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|s| s.trim().parse::<IpAddr>().ok())
+    {
+        return real_ip;
+    }
 
-            if let Some(forwarded) = request
-                .headers()
-                .get("X-Forwarded-For")
-                .and_then(|v| v.to_str().ok())
-                && let Some(ip) = forwarded.split(',').next()
-                && let Ok(parsed) = ip.trim().parse::<IpAddr>()
-            {
-                return parsed;
-            }
-        }
+    if let Some(peer) = peer_ip
+        && is_trusted_proxy(&peer)
+        && let Some(forwarded) = request
+            .headers()
+            .get("X-Forwarded-For")
+            .and_then(|v| v.to_str().ok())
+        && let Some(ip) = forwarded.split(',').next()
+        && let Ok(parsed) = ip.trim().parse::<IpAddr>()
+    {
+        return parsed;
+    }
+
+    if let Some(peer) = peer_ip {
         return peer;
     }
 

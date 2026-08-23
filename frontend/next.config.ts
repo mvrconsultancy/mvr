@@ -133,7 +133,7 @@ const nextConfig: NextConfig = {
   },
 
   // ---------------------------------------------------------------------------
-  // Redirect www → non-www (configure domain when ready)
+  // Legacy path redirects (apex→www handled by Vercel domain settings)
   // ---------------------------------------------------------------------------
   async redirects() {
     return [
@@ -145,12 +145,6 @@ const nextConfig: NextConfig = {
       {
         source: "/tools/sop",
         destination: "/tools/gpa",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "mvrconsultants.org" }],
-        destination: "https://www.mvrconsultants.org/:path*",
         permanent: true,
       },
     ];

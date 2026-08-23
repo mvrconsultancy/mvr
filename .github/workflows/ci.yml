@@ -36,21 +36,17 @@ jobs:
         with:
           components: clippy, rustfmt
 
-      - name: Cache cargo registry + build artifacts
+      - name: Cache cargo registry
         uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            backend/target
-          key: cargo-${{ runner.os }}-${{ hashFiles('backend/Cargo.lock') }}
-          restore-keys: cargo-${{ runner.os }}-
+          key: cargo-registry-${{ runner.os }}-${{ hashFiles('backend/Cargo.lock') }}
+          restore-keys: cargo-registry-${{ runner.os }}-
 
       - name: Check formatting
         run: cargo fmt --check
-
-      - name: Compile check
-        run: cargo check --all-targets
 
       - name: Clippy (treat warnings as errors in CI)
         run: cargo clippy --all-targets -- -D warnings
@@ -118,7 +114,7 @@ jobs:
             echo "❌ RENDER_DEPLOY_HOOK_URL secret is not set."
             echo "GitHub → Settings → Environments → production → Environment secrets"
             echo "Add secret: RENDER_DEPLOY_HOOK_URL"
-            echo "Get the URL from: Render Dashboard → mvr-backend → Settings → Deploy Hook"
+            echo "Get the URL from: Render Dashboard → mvr-umqq → Settings → Deploy Hook"
             exit 1
           fi
         env:
@@ -127,7 +123,7 @@ jobs:
       - name: Trigger Render deploy hook
         run: |
           HOOK_URL="$(echo "$RENDER_DEPLOY_HOOK_URL" | tr -d '[:space:]')"
-          echo "Triggering Render deploy for mvr-backend..."
+          echo "Triggering Render deploy for mvr-umqq..."
           HTTP_CODE="$(curl -sS --retry 3 -o /dev/null -w "%{http_code}" "$HOOK_URL")"
           echo "HTTP $HTTP_CODE"
           if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "202" ]; then

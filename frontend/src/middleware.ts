@@ -7,13 +7,6 @@ import type { NextRequest } from "next/server";
  * Full JWT validation still happens via /api/auth/me in useAdminAuth.
  */
 export function middleware(request: NextRequest) {
-  const host = request.headers.get("host")?.split(":")[0];
-  if (host === "mvrconsultants.org") {
-    const url = request.nextUrl.clone();
-    url.hostname = "www.mvrconsultants.org";
-    return NextResponse.redirect(url, 308);
-  }
-
   const { pathname } = request.nextUrl;
 
   if (pathname === "/admin/login") {
