@@ -57,7 +57,9 @@ Client Browser
 
 **Single source of truth:** Admin CMS edits are stored in Postgres and served via the API to the public website (countries, blogs, universities, scholarships, testimonials). Static JSON in `frontend/src/data/` is used only as a build-time fallback when the API is unreachable.
 
-> **Admin login:** Use `https://www.mvrconsultants.org/admin/login` (apex `mvrconsultants.org` without `www` does not reach Vercel).
+> **Admin login:** `https://www.mvrconsultants.org/admin/login` — apex `mvrconsultants.org` redirects to `www` via Vercel.
+
+> **Production URLs:** [HANDOFF.md](HANDOFF.md) — full client transfer checklist, DNS, and env vars.
 
 > For local development, an optional Nginx reverse proxy is available via Docker Compose.
 
@@ -106,7 +108,7 @@ Client Browser
 | Supabase | Hosted PostgreSQL (shared team DB) |
 | Vercel | Frontend hosting & edge deployment |
 | Render | Backend Docker-based hosting (Singapore region) + Redis |
-| Hostinger | Domain (DNS only — no VPS; CNAME → Vercel, business email) |
+| Hostinger | Domain DNS (CNAME `www` → Vercel; business email via MX) |
 | Cloudinary | Image uploads & CDN delivery |
 | Resend | Transactional email |
 | Docker + Compose | **Local development** orchestration only |
@@ -198,7 +200,7 @@ mvr/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/coriuday/mvr.git
+git clone https://github.com/mvrconsultancy/mvr.git
 cd mvr
 ```
 
@@ -285,10 +287,14 @@ See [`.env.example`](.env.example), [`frontend/.env.example`](frontend/.env.exam
 
 ### Frontend (Vercel)
 
+**Client project:** [MvrConsultancy / `mvr`](https://vercel.com/mvr-consultancy/mvr) — root directory **`frontend`**
+
 | Variable | Description |
 |----------|-------------|
 | `BACKEND_URL` | **Required** — Render backend URL (e.g. `https://mvr-umqq.onrender.com`). Used by the `/api` proxy and SSR fetches. |
 | `NEXT_PUBLIC_APP_URL` | Public site URL (e.g. `https://www.mvrconsultants.org`) |
+
+Copy-paste reference: [`frontend/vercel.production.env.example`](frontend/vercel.production.env.example)
 
 > Browser requests use same-origin `/api/*` (no `NEXT_PUBLIC_API_URL` to Render needed in production). Auth uses httpOnly cookies (`mvr_access`, `mvr_refresh`).
 
@@ -348,22 +354,33 @@ See [`.env.example`](.env.example), [`frontend/.env.example`](frontend/.env.exam
 
 ## 🚢 Deployment
 
+| Service | URL / project |
+|---------|-----------------|
+| Public site | `https://www.mvrconsultants.org` |
+| Vercel (frontend) | [`mvr`](https://vercel.com/mvr-consultancy/mvr) — deploy URL: `https://mvr.vercel.app` |
+| Render (backend) | `https://mvr-umqq.onrender.com` |
+| GitHub | [`mvrconsultancy/mvr`](https://github.com/mvrconsultancy/mvr) |
+
+See [HANDOFF.md](HANDOFF.md) for the full client transfer checklist.
+
 ### Backend → Render
-The backend deploys via [`render.yaml`](render.yaml) as a Docker web service in **Singapore**, with a **Redis** instance for JWT blocklist (logout revocation).
+
+The backend deploys via [`render.yaml`](render.yaml) as a Docker web service in **Singapore**, with a **Redis** instance for JWT blocklist (logout revocation). Client service: **`mvr-umqq`**.
 
 ```bash
-# Set secret env vars in: Render Dashboard → mvr-backend → Environment
+# Set secret env vars in: Render Dashboard → mvr-umqq → Environment
 # Required: DATABASE_URL, JWT_*, REDIS_URL, CLOUDINARY_*, RESEND_API_KEY, ALLOWED_ORIGINS
 ```
 
 After first deploy, run seed scripts locally against production `DATABASE_URL` (see [Quick Start](#-quick-start)).
 
 ### Frontend → Vercel
-The frontend deploys to Vercel on push to `master`.
+
+The frontend deploys to the client's Vercel project **`mvr`** (team **MvrConsultancy**) on push to `master`. **Root directory must be `frontend`.**
 
 ```bash
-# Required Vercel env var:
-BACKEND_URL=https://mvr-umqq.onrender.com   # your Render service URL
+# Required Vercel Production env vars:
+BACKEND_URL=https://mvr-umqq.onrender.com
 NEXT_PUBLIC_APP_URL=https://www.mvrconsultants.org
 ```
 
@@ -373,9 +390,24 @@ The Next.js app proxies `/api/*` to Render via `src/app/api/[...path]/route.ts` 
 cd frontend && npm run build   # Vercel runs this automatically
 ```
 
-### DNS
-- `www.mvrconsultants.org` → Vercel (CNAME)
-- Apex `mvrconsultants.org` should redirect to `www` (configured in `next.config.ts`)
+### DNS (Hostinger → Vercel)
+
+Canonical host is **`www`**. Apex redirects to www at the Vercel edge (not in app code).
+
+| Hostinger record | Value |
+|------------------|-------|
+| `www` CNAME | `38a1e8e29e879bb4.vercel-dns-017.com` (from Vercel → Domains panel) |
+| `@` A | Vercel-provided IP (e.g. `76.76.21.21` — copy from Vercel dashboard) |
+
+**Remove** the old `www` CNAME → `mvrconsultants.org` (causes invalid Vercel config).
+
+**Do not delete** email DNS: MX, SPF, DMARC, Resend/Hostinger DKIM CNAMEs — see [HANDOFF.md Phase 5](HANDOFF.md#phase-5--custom-domain-hostinger-dns--client-vercel--action-required).
+
+Verify after DNS changes:
+
+```bash
+cd frontend && node scripts/verify-domain-dns.mjs
+```
 
 ---
 
@@ -404,7 +436,7 @@ We use a structured branch strategy with automated checks:
 2. Follow conventional commits (`feat:`, `fix:`, `chore:`).
 3. Ensure local checks pass before submitting a PR:
    - Backend: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo audit`, `cargo test`
-   - Frontend: `npm run build` (includes `tsc`)
+   - Frontend: `npm run build` (includes `tsc`), `node scripts/verify-domain-dns.mjs` (after DNS changes)
 4. Submit a Pull Request targeting the `dev` branch. Our automated GitHub Action (`PR Checks`) will run clippy, tests, and build validation. Once approved and checks pass, it can be merged.
 5. Merging `dev` into `master` triggers the production deployment pipeline (`CI` workflow), which automatically runs all checks and deploys the backend to Render.
 
