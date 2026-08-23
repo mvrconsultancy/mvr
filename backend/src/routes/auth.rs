@@ -144,6 +144,7 @@ pub async fn register(
 // ─────────────────────────────────────────────
 // POST /api/auth/login
 // ─────────────────────────────────────────────
+#[allow(clippy::result_large_err)]
 pub async fn login(
     State(state): State<AppState>,
     body: Result<Json<LoginRequest>, axum::extract::rejection::JsonRejection>,
