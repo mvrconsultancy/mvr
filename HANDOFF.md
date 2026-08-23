@@ -418,18 +418,22 @@ Without this secret, the "Deploy Backend → Render" job fails after CI passes.
 
 ## Phase 6 — End-to-end verification
 
-**Last automated check: 2026-08-23**
+**Last automated check: 2026-08-23 (after redirect + CI fixes, commit `6dd178a`)**
 
-| Target | Result |
-|--------|--------|
-| `https://mvr-one.vercel.app/` | 200 Pass |
-| `https://mvr-one.vercel.app/countries/uk` | 200 Pass |
-| `https://mvr-one.vercel.app/health` | 200 Pass (Render proxy) |
-| `https://mvr-one.vercel.app/api/countries/uk` | 200 Pass |
-| `https://mvr-umqq.onrender.com/health` | 200 Pass |
-| `https://www.mvrconsultants.org/` | **Fail** — redirect loop until Hostinger DNS fixed (Phase 5) |
+| Target | Expected | Result |
+|--------|----------|--------|
+| `https://www.mvrconsultants.org/` | 200 | **Pass** — 200 OK |
+| `https://mvrconsultants.org/` | 308 → www | **Pass** — 307 → `www` (Vercel apex redirect) |
+| `https://www.mvrconsultants.org/health` | 200 JSON | **Pass** — 200 `application/json` |
+| `https://www.mvrconsultants.org/api/countries/uk` | 200 JSON | **Pass** — 200 `application/json` |
+| `https://www.mvrconsultants.org/countries/uk` | 200 | **Pass** — 200 OK |
+| `https://www.mvrconsultants.org/admin/login` | 200 | **Pass** — 200 OK |
+| `https://mvr-one.vercel.app/` | 200 | **Pass** |
+| `https://mvr-one.vercel.app/health` | 200 | **Pass** (Render proxy) |
+| `https://mvr-umqq.onrender.com/health` | 200 | **Pass** |
+| GitHub Actions CI (run #89) | Frontend + Backend green | **Pass** — [run #89](https://github.com/mvrconsultancy/mvr/actions/runs/32635111641) |
 
-Run through with the client watching (on `mvr-one.vercel.app` now; custom domain after DNS fix).
+Run through with the client watching on `www.mvrconsultants.org` (custom domain working as of 2026-08-23).
 
 ### Public site
 
