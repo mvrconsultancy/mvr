@@ -287,7 +287,7 @@ See [`.env.example`](.env.example), [`frontend/.env.example`](frontend/.env.exam
 
 | Variable | Description |
 |----------|-------------|
-| `BACKEND_URL` | **Required** — Render backend URL (e.g. `https://mvr-backend.onrender.com`). Used by the `/api` proxy and SSR fetches. |
+| `BACKEND_URL` | **Required** — Render backend URL (e.g. `https://mvr-umqq.onrender.com`). Used by the `/api` proxy and SSR fetches. |
 | `NEXT_PUBLIC_APP_URL` | Public site URL (e.g. `https://www.mvrconsultants.org`) |
 
 > Browser requests use same-origin `/api/*` (no `NEXT_PUBLIC_API_URL` to Render needed in production). Auth uses httpOnly cookies (`mvr_access`, `mvr_refresh`).
@@ -363,7 +363,7 @@ The frontend deploys to Vercel on push to `master`.
 
 ```bash
 # Required Vercel env var:
-BACKEND_URL=https://mvr-backend.onrender.com   # your Render service URL
+BACKEND_URL=https://mvr-umqq.onrender.com   # your Render service URL
 NEXT_PUBLIC_APP_URL=https://www.mvrconsultants.org
 ```
 

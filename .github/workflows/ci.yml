@@ -96,7 +96,7 @@ jobs:
       - name: Next.js build
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_API_URL: https://mvr-umqq.onrender.com
           NEXT_PUBLIC_APP_URL: https://www.mvrconsultants.org
 
   # ── Deploy backend to Render (main branch only) ───────────────────────────────

@@ -2,7 +2,7 @@
  * API integration smoke tests. Usage: node scripts/qa-api-smoke.mjs [baseUrl]
  * Default: production backend direct
  */
-const base = process.argv[2] || "https://mvr-backend.onrender.com";
+const base = process.argv[2] || "https://mvr-umqq.onrender.com";
 
 async function req(method, path, body) {
   const url = `${base}${path}`;

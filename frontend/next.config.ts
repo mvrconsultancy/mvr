@@ -115,7 +115,7 @@ const nextConfig: NextConfig = {
   // ---------------------------------------------------------------------------
   // API proxy — same-origin cookies for admin auth (Vercel → Render)
   // Browser calls /api/* on the frontend domain; Next.js forwards to Rust backend.
-  // Set BACKEND_URL in Vercel (server-only), e.g. https://mvr-backend.onrender.com
+  // Set BACKEND_URL in Vercel (server-only), e.g. https://mvr-umqq.onrender.com
   // ---------------------------------------------------------------------------
   async rewrites() {
     const backend = resolveBackendUrl();

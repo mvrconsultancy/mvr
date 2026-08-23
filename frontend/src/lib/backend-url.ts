@@ -10,7 +10,7 @@ export function resolveBackendUrl(): string {
   }
 
   if (process.env.VERCEL === "1" || process.env.NODE_ENV === "production") {
-    return "https://mvr-backend.onrender.com";
+    return "https://mvr-umqq.onrender.com";
   }
 
   return "http://localhost:8080";

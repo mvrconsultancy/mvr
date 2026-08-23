@@ -4,7 +4,8 @@ Use this document to transfer the full stack to the client's personal accounts *
 
 **Stack:** GitHub → Vercel (frontend) + Render (backend + Redis) → Supabase (Postgres)  
 **Domain:** `https://www.mvrconsultants.org`  
-**Backend (current):** `https://mvr-backend.onrender.com`  
+**Backend (current):** `https://mvr-umqq.onrender.com`  
+**Frontend (current):** `https://mvr-one.vercel.app`  
 **Supabase project ref:** `vjjykfkbfkfalhqkczsd`
 
 ---
@@ -73,7 +74,7 @@ Copy `DATABASE_URL` from Supabase → keep it on Render (unchanged unless client
 ### What's probably still working right now
 
 - [ ] `https://www.mvrconsultants.org` — if Vercel deploy wasn't deleted
-- [ ] `https://mvr-backend.onrender.com/health` — if Render still has env vars
+- [ ] `https://mvr-umqq.onrender.com/health` — if Render still has env vars
 - [ ] Database — still your Supabase; unchanged by GitHub transfer alone
 
 ### What is probably broken
@@ -118,7 +119,7 @@ Copy these into a **private doc** (1Password, encrypted note, etc.). **Never com
 ### 3. Baseline check (while still on your accounts)
 
 - [ ] `https://www.mvrconsultants.org` loads
-- [ ] `https://mvr-backend.onrender.com/health` returns OK
+- [ ] `https://mvr-umqq.onrender.com/health` returns OK
 - [ ] Admin login: `https://www.mvrconsultants.org/admin/login`
 - [ ] Contact form sends email
 
@@ -322,25 +323,63 @@ Use **New Blueprint** → select repo → Render reads `dockerfilePath: ./backen
 
 ### Vercel environment variables
 
-| Variable | Production value |
-|----------|------------------|
-| `BACKEND_URL` | Client's Render URL (e.g. `https://mvr-backend.onrender.com`) |
-| `NEXT_PUBLIC_APP_URL` | `https://www.mvrconsultants.org` |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Client's Cloudinary cloud name |
+**Root Directory:** `frontend` (required)
 
-- [ ] Deploy from `master` branch succeeded
+Add in Vercel → Project → **Settings** → **Environment Variables** → **Production**:
+
+| Variable | Required | Value |
+|----------|----------|--------|
+| `BACKEND_URL` | Yes | `https://mvr-umqq.onrender.com` (no trailing slash) |
+| `NEXT_PUBLIC_APP_URL` | Yes | `https://www.mvrconsultants.org` or `https://mvr-one.vercel.app` until DNS is connected |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | No | Skip — Cloudinary is configured on Render only |
+
+Copy-paste reference: [`frontend/vercel.production.env.example`](frontend/vercel.production.env.example)
+
+**Do not set on Vercel:** `DATABASE_URL`, `JWT_*`, `TOTP_ENCRYPTION_KEY`, `REDIS_URL`, `RESEND_API_KEY`, `PORT`
+
+After saving env vars → **Redeploy** (vars apply on next deploy only).
+
+**Verify:**
+
+- [ ] `https://www.mvrconsultants.org/countries/uk` loads country data
+- [ ] `https://www.mvrconsultants.org/sitemap.xml` uses `www.mvrconsultants.org` URLs
+- [ ] `https://www.mvrconsultants.org/admin/login` loads
 - [ ] Note Vercel project URL: `________________________________`
 
 ---
 
-## Phase 5 — DNS (Hostinger)
+## Phase 5 — DNS (Hostinger) — ACTION REQUIRED
 
-Point the live domain to **client's Vercel project**.
+**Verified issue (2026-08-23):** `www.mvrconsultants.org` and `mvrconsultants.org` are in a **redirect loop**:
 
-- [ ] `www.mvrconsultants.org` → CNAME → Vercel (client's project)
-- [ ] Apex `mvrconsultants.org` → redirect to `www` (handled in [`frontend/next.config.ts`](frontend/next.config.ts) once traffic hits Vercel)
-- [ ] Resend SPF/DKIM records updated if DNS moved or keys changed
-- [ ] SSL certificate active on Vercel (automatic after DNS propagates)
+- Hostinger sends `www` → apex (307)
+- Vercel/app sends apex → `www` (308 in [`frontend/next.config.ts`](frontend/next.config.ts))
+
+**Until fixed, use:** `https://mvr-one.vercel.app` (fully working).
+
+### Fix in Hostinger (do this now)
+
+1. **Remove** any Hostinger **URL redirect / forwarding** that sends `www.mvrconsultants.org` → `mvrconsultants.org`
+2. **Vercel** → `mvr-one` → **Settings → Domains** → add both:
+   - `www.mvrconsultants.org`
+   - `mvrconsultants.org`
+3. **Hostinger DNS** — set records exactly as Vercel shows:
+   - `www` → **CNAME** → `cname.vercel-dns.com` (or Vercel-provided target)
+   - Apex `@` → **A record** to Vercel IP **OR** let Vercel handle apex (follow Vercel domain wizard)
+4. **Rule:** Only one redirect direction — app redirects apex → www. Do **not** also redirect www → apex in Hostinger.
+5. Wait for DNS propagation (up to 24–48h, often minutes).
+
+### Verify after DNS fix
+
+```bash
+curl -sL -o /dev/null -w "%{http_code} %{url_effective}\n" https://www.mvrconsultants.org/
+# Expected: 200 https://www.mvrconsultants.org/
+```
+
+- [ ] `www.mvrconsultants.org` → CNAME → Vercel (`mvr-one` project)
+- [ ] No Hostinger www → apex redirect
+- [ ] Resend SPF/DKIM records still valid
+- [ ] SSL active on Vercel (automatic)
 
 **DNS propagation:** can take up to 24–48 hours; often much faster.
 
@@ -348,7 +387,18 @@ Point the live domain to **client's Vercel project**.
 
 ## Phase 6 — End-to-end verification
 
-Run through with the client watching.
+**Last automated check: 2026-08-23**
+
+| Target | Result |
+|--------|--------|
+| `https://mvr-one.vercel.app/` | 200 Pass |
+| `https://mvr-one.vercel.app/countries/uk` | 200 Pass |
+| `https://mvr-one.vercel.app/health` | 200 Pass (Render proxy) |
+| `https://mvr-one.vercel.app/api/countries/uk` | 200 Pass |
+| `https://mvr-umqq.onrender.com/health` | 200 Pass |
+| `https://www.mvrconsultants.org/` | **Fail** — redirect loop until Hostinger DNS fixed (Phase 5) |
+
+Run through with the client watching (on `mvr-one.vercel.app` now; custom domain after DNS fix).
 
 ### Public site
 
